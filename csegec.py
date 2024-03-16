@@ -62,6 +62,8 @@ cs2y.addCourse(osLab)
 cs2y.addCourse(constitution)
 cs2y.addCourse(ethics)
 
+print(skej.z3_classHourBools['class'] == 'CS-4')
+
 helen = Teacher("Prof. Helen KJ")
 ajayJames = Teacher("Dr. Ajay James")
 princyAnn = Teacher("Ms. Princy Ann Thomas")

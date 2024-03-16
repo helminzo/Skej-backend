@@ -2,6 +2,8 @@ from typing import List
 from model.Class import Class
 from model.Teacher import Teacher
 from model.Course import Course
+
+import pandas as pd
 from z3 import *
 
 class Schedule():
@@ -13,12 +15,17 @@ class Schedule():
         self.teachers = []
 
         # keys order: class, day, hour, course: -> classHourBool
-        self.z3_classHourBools = {}
+        self.z3_classHourBools = pd.DataFrame(columns=['class', 'course', 'day', 'hour', 'classHourBool'])
+        self.z3_classHourBools.set_index(['class', 'course', 'day', 'hour'], inplace=True)
 
         # keys order: class, day, hour: -> [classHourBool] 
-        self.z3_oneClassAtATimeConstraintLists = {}
+        self.z3_oneClassAtATimeConstraintLists = pd.DataFrame(columns=['class', 'day', 'hour', 'constraints'])
+        self.z3_oneClassAtATimeConstraintLists.set_index(['class', 'day', 'hour'], inplace=True)
+
         # keys order: class, course: -> (hoursRequired, [classHourBool])
-        self.z3_hourRequirementConstraints = {}
+        self.z3_hourRequirementConstraints = pd.DataFrame(columns=['class', 'course', 'hoursRequired', 'constraints'])
+        self.z3_hourRequirementConstraints.set_index(['class', 'course'], inplace=True)
+
         # keys order: teacher, day, hour: -> [classHourBool]
         self.z3_teachesOneClassAtATimeConstraintLists = {}
 
@@ -45,43 +52,11 @@ class Schedule():
         return True
     
     def onAddCourseToClass(self, _class: Class, course: Course):
-        if(_class.name not in self.z3_classHourBools):
-            self.z3_classHourBools[_class.name] = {}
-        classDict = self.z3_classHourBools[_class.name]
         # Add class hour vars
         for i in range(len(self.hours)):
-            if(i not in classDict):
-                classDict[i] = {}
             for j in range(self.hours[i]):
                 boolNameStr = f'{course.courseName}@d{i}h{j}@c{_class.name}'
-                if(j not in classDict[i]):
-                    classDict[i][j] = {course.courseName: Bool(boolNameStr)}
-                else:
-                    classDict[i][j][course.courseName] = Bool(boolNameStr)
-        
-        # One class at a time constraints
-        if(_class.name not in self.z3_oneClassAtATimeConstraintLists):
-            self.z3_oneClassAtATimeConstraintLists[_class.name] = {}
-            for i in range(len(self.hours)):
-                self.z3_oneClassAtATimeConstraintLists[_class.name][i] = {}
-                for j in range(self.hours[i]):
-                    self.z3_oneClassAtATimeConstraintLists[_class.name][i][j] = []
-        for day in self.z3_oneClassAtATimeConstraintLists[_class.name]:
-            for hour in self.z3_oneClassAtATimeConstraintLists[_class.name][day]:
-                self.z3_oneClassAtATimeConstraintLists[_class.name][day][hour].append(
-                    self.z3_classHourBools[_class.name][day][hour][course.courseName]
-                )
-        
-        # Hours requirement meeting constraints
-        if(_class.name not in self.z3_hourRequirementConstraints):
-            self.z3_hourRequirementConstraints[_class.name] = {}
-        hourRequirementsForClass = self.z3_hourRequirementConstraints[_class.name]
-        hourRequirementsForClass[course.courseName] = (course.hoursRequired, [])
-        for i in range(len(self.hours)):
-            for j in range(self.hours[i]):
-                hourRequirementsForClass[course.courseName][1].append(
-                    self.z3_classHourBools[_class.name][i][j][course.courseName]
-                ) 
+                self.z3_classHourBools.loc[(_class.name, course.courseName, i, j)] = Bool(boolNameStr)
     
 
     def onAssignCourseToTeacher(self, teacher: Teacher, course: Course):
