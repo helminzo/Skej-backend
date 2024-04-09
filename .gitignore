@@ -1,4 +1,5 @@
-TeacherSchedules/*
-ClassSchedules/*
-**/__pycache__/*
-.DS_STORE/*
+*
+!model/*
+!classesTester.py
+!interactiveScheduler.py
+!file2skej.py

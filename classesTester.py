@@ -1,8 +1,7 @@
 from model.Teacher import *
 from model.Course import *
 from model.Schedule import *
-import pprint
-
+from InteractiveScheduler import InteractiveScheduler
 
 skej = Schedule(hours = [2,2])
 cs4y = Class("4A")
@@ -35,15 +34,5 @@ t2.assignCourse(c2)
 t2.assignCourse(c3)
 t2.assignCourse(e1)
 
-print("Class hour bools")
-pprint.pprint(skej.z3_classHourBools, indent=4)
-print("One class at at time constraint lists")
-pprint.pprint(skej.z3_oneClassAtATimeConstraintLists, indent=4)
-print("Hour requirement constraints")
-pprint.pprint(skej.z3_hourRequirementConstraints, indent=4)
-print("Teaches one class at a time constraints")
-pprint.pprint(skej.z3_teachesOneClassAtATimeConstraintLists, indent=4)
-
-skej.createSchedule()
-pprint.pprint(skej.classSchedule, indent=4)
-pprint.pprint(skej.teacherSchedule, indent=4)
+intSkej = InteractiveScheduler(skej)
+intSkej.start()

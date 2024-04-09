@@ -1,3 +1,3 @@
-typing
-z3
-pandas
+typing==3.7.4.3
+z3-solver==4.13.0.0
+pandas==2.2.1
