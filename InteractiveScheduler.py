@@ -12,7 +12,7 @@ class InteractiveScheduler:
         if schedule is not None:
             self.schedule = schedule
         else:
-            self.schedule = Schedule()
+            self.schedule = None 
         self.cmd = ""
 
     def fileInit(self, config=None):
